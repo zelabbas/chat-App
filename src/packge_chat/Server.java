@@ -63,7 +63,7 @@ public class Server implements ActionListener {
         back.setBounds(5, 22 , 25, 25);
         panel.add(back);
 
-        JLabel profile = loadImage("icons/1.png", 50,50);
+        JLabel profile = loadImage("icons/profile1.png", 50,50);
         profile.setBounds(50, 10, 50, 50);
         panel.add(profile);
 
@@ -206,8 +206,10 @@ public class Server implements ActionListener {
     public void startChat() {
         try {
             ServerSocket skt = new ServerSocket(8080);
+            System.out.println("here2");
             while (true) {
                 Socket s =  skt.accept();
+                System.out.println("here2");
                 DataInputStream din = new DataInputStream(s.getInputStream());
                 dout = new DataOutputStream(s.getOutputStream());
                 System.out.println("here1");

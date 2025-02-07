@@ -61,7 +61,7 @@ public class Client extends JFrame implements ActionListener {
         back.setBounds(5, 22 , 25, 25);
         panel.add(back);
 
-        JLabel profile = loadImage("icons/1.png", 50,50);
+        JLabel profile = loadImage("icons/profile2.png", 50,50);
         profile.setBounds(50, 10, 50, 50);
         panel.add(profile);
 
