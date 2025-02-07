@@ -3,14 +3,24 @@ package packge_chat;
 
 import javax.naming.NamingEnumeration;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-public class Server extends JFrame implements ActionListener {
+public class Server implements ActionListener {
 
     JTextField message;
     JPanel panelData;
-    Box vertical = Box.createVerticalBox();
+    public static DataOutputStream dout;
+    public static JFrame window = new JFrame();
+    public static Box vertical = Box.createVerticalBox();
     protected JLabel loadImage(final String pathToIcon, int width, int height) {
         ImageIcon image1 = new ImageIcon(ClassLoader.getSystemResource(pathToIcon));
         Image image2 = image1.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT);
@@ -20,10 +30,16 @@ public class Server extends JFrame implements ActionListener {
 
     public Server() {
         // set the size of the frame
-        setSize(600, 1000);
+        window.setSize(600, 1000);
         // Set a title for the window
-        setTitle("Chat Server");
-        setLayout(null);
+        window.setTitle("Chat Server");
+        window.setLayout(null);
+
+        // Register Escape key to close the window
+        window.getRootPane().registerKeyboardAction(e -> {
+            System.out.println("close window!");
+            System.exit(0);
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // to remove the up bar!
 //        setUndecorated(true);
@@ -39,7 +55,7 @@ public class Server extends JFrame implements ActionListener {
         panel.setBounds(0, 0, 600, 80);
 
         // add the panel on the Frame
-        add(panel);
+        window.add(panel);
 
         // load the icon
         JLabel back = loadImage("icons/3.png", 25, 25);
@@ -88,7 +104,7 @@ public class Server extends JFrame implements ActionListener {
         // add the second panel that will hold the Label messages and so forth
         panelData = new JPanel();
         panelData.setBounds(5, 85, 590, 820);
-        add(panelData);
+        window.add(panelData);
 
         // Required because panelData.add(vertical, BorderLayout.PAGE_START); needs a valid layout manager that supports positional adding
         panelData.setLayout(new BorderLayout()); // Set once at initialization
@@ -98,7 +114,7 @@ public class Server extends JFrame implements ActionListener {
         message = new JTextField();
         message.setBounds(5, 915, 420, 40);
         message.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
-        add(message);
+        window.add(message);
 
         message.addKeyListener(new KeyAdapter() {
             @Override
@@ -116,45 +132,105 @@ public class Server extends JFrame implements ActionListener {
         send.setForeground(Color.WHITE);
         send.addActionListener(this);
         send.setFont(new Font("SAN_SERIF", Font.BOLD, 16));
-        add(send);
+        window.add(send);
 
         // just a test for scroll
 //        JScrollPane scrollPane = new JScrollPane(panelData);
 //        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         // make the Frame visible
-        setVisible(true);
+        window.setVisible(true);
 
         // Center the window on screen
-        setLocationRelativeTo(null);
+        window.setLocationRelativeTo(null);
 
-        getContentPane().setBackground(Color.white);
+        window.getContentPane().setBackground(Color.white);
         // Close the application when the frame is closed
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public static JPanel formatLabel(String out) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel output = new JLabel("<html><p style=\"width: 170px\"> " + out + "</p></html>");
+        output.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        output.setBackground(new Color(37, 211, 102));
+        output.setOpaque(true);
+        output.setBorder(new EmptyBorder(15, 15, 15 ,50));
+
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+
+        JLabel time = new JLabel();
+        time.setText(sdf.format(cal.getTime()));
+        time.setForeground(Color.gray);
+
+        panel.add(output);
+        panel.add(time);
+        return (panel);
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        String out = message.getText();
-        if (out.isEmpty())
+        if (message.getText().isEmpty())
             return;
-        message.setText("");
+        try {
+            String out = message.getText();
+            dout.writeUTF(out);
+            message.setText("");
 
-        JLabel output = new JLabel(out);
-        JPanel p2 = new JPanel();
-        p2.add(output);
+//        JLabel output = new JLabel(out);
+//        output.setFont(new Font("Tahoma", Font.PLAIN, 16));
+//        output.setBackground(new Color(37, 211, 102));
+//        output.setOpaque(true);
+            JPanel p2 = formatLabel(out);
+//          p2.add(output);
 
-        JPanel right = new JPanel(new BorderLayout());
-        right.add(p2, BorderLayout.AFTER_LINE_ENDS);
-        vertical.add(right);
-        vertical.add(Box.createVerticalStrut(15));
-        panelData.add(vertical, BorderLayout.PAGE_START);
+            JPanel right = new JPanel(new BorderLayout());
+            right.add(p2, BorderLayout.LINE_END);
+            vertical.add(right);
+            vertical.add(Box.createVerticalStrut(15));
+            panelData.add(vertical, BorderLayout.PAGE_START);
 
-        repaint();
-        revalidate(); // Refresh the UI
-//        invalidate();
-//        validate();
+            window.repaint();
+            window.revalidate(); // Refresh the UI
+            //        validate();
+            //        invalidate();
+            System.out.println("actionPerformed Server : " +  out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        System.out.println("actionPerformed method from SERVER : " +  out);
+    }
+
+    public void startChat() {
+        try {
+            ServerSocket skt = new ServerSocket(8080);
+            while (true) {
+                Socket s =  skt.accept();
+                DataInputStream din = new DataInputStream(s.getInputStream());
+                dout = new DataOutputStream(s.getOutputStream());
+
+                while (true) {
+                    String msg = din.readUTF();
+                    JPanel panel = Server.formatLabel(msg);
+
+                    JPanel left = new JPanel(new BorderLayout());
+                    left.add(panel, BorderLayout.LINE_START);
+                    vertical.add(left);
+                    panelData.add(vertical, BorderLayout.PAGE_START);
+                    window.validate();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("something went wrong!");
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+            Server server = new Server();
+            server.startChat();
     }
 }
