@@ -103,22 +103,14 @@ public class Client extends JFrame implements ActionListener {
         panelData = new JPanel();
         panelData.setLayout(new BoxLayout(panelData, BoxLayout.Y_AXIS)); // Stack messages vertically
 
-// Wrap panelData inside a JScrollPane
-        JScrollPane scrollPane = new JScrollPane(panelData);
-        scrollPane.setBounds(5, 85, 590, 820);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-// Add the scrollPane instead of panelData directly
-        add(scrollPane);
+        // add the second panel that will hold the Label messages and so forth
+        panelData = new JPanel();
+        panelData.setBounds(5, 85, 590, 820);
+        add(panelData);
 
-
-//        // add the second panel that will hold the Label messages and so forth
-//        panelData = new JPanel();
-//        panelData.setBounds(5, 85, 590, 820);
-//        add(panelData);
-//
-//        // Required because panelData.add(vertical, BorderLayout.PAGE_START); needs a valid layout manager that supports positional adding
-//        panelData.setLayout(new BorderLayout()); // Set once at initialization
+        // Required because panelData.add(vertical, BorderLayout.PAGE_START); needs a valid layout manager that supports positional adding
+        panelData.setLayout(new BorderLayout()); // Set once at initialization
 
 
         // add the input message

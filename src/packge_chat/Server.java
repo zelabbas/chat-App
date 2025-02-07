@@ -210,7 +210,7 @@ public class Server implements ActionListener {
                 Socket s =  skt.accept();
                 DataInputStream din = new DataInputStream(s.getInputStream());
                 dout = new DataOutputStream(s.getOutputStream());
-
+                System.out.println("here1");
                 while (true) {
                     String msg = din.readUTF();
                     JPanel panel = Server.formatLabel(msg);
@@ -220,6 +220,7 @@ public class Server implements ActionListener {
                     vertical.add(left);
                     panelData.add(vertical, BorderLayout.PAGE_START);
                     window.validate();
+                    System.out.println("here");
                 }
             }
         } catch (Exception e) {
@@ -227,6 +228,46 @@ public class Server implements ActionListener {
             e.printStackTrace();
         }
     }
+
+//    public void startChat() {
+//        try {
+//            ServerSocket skt = new ServerSocket(8080);
+//            while (true) {
+//                Socket s = skt.accept();
+//                new ClientHandler(s).start(); // Handle client in a new thread
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Something went wrong!");
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    // Thread to handle each client separately
+//    class ClientHandler extends Thread {
+//        private Socket socket;
+//        private DataInputStream din;
+//
+//        public ClientHandler(Socket socket) {
+//            this.socket = socket;
+//            try {
+//                this.din = new DataInputStream(socket.getInputStream());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        public void run() {
+//            try {
+//                while (true) {
+//                    String msg = din.readUTF();
+//                    System.out.println("Received: " + msg);
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Client disconnected!");
+//            }
+//        }
+//    }
+
 
     public static void main(String[] args) {
 
