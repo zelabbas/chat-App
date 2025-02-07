@@ -10,6 +10,7 @@ public class Server extends JFrame implements ActionListener {
 
     JTextField message;
     JPanel panelData;
+    Box vertical = Box.createVerticalBox();
     protected JLabel loadImage(final String pathToIcon, int width, int height) {
         ImageIcon image1 = new ImageIcon(ClassLoader.getSystemResource(pathToIcon));
         Image image2 = image1.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT);
@@ -89,12 +90,24 @@ public class Server extends JFrame implements ActionListener {
         panelData.setBounds(5, 85, 590, 820);
         add(panelData);
 
+        // Required because panelData.add(vertical, BorderLayout.PAGE_START); needs a valid layout manager that supports positional adding
+        panelData.setLayout(new BorderLayout()); // Set once at initialization
+
 
         // add the input message
         message = new JTextField();
         message.setBounds(5, 915, 420, 40);
         message.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
         add(message);
+
+        message.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    actionPerformed(new ActionEvent(message, ActionEvent.ACTION_PERFORMED, null));
+                }
+            }
+        });
 
         // add the button send
         JButton send = new JButton("Send");
@@ -104,6 +117,10 @@ public class Server extends JFrame implements ActionListener {
         send.addActionListener(this);
         send.setFont(new Font("SAN_SERIF", Font.BOLD, 16));
         add(send);
+
+        // just a test for scroll
+//        JScrollPane scrollPane = new JScrollPane(panelData);
+//        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         // make the Frame visible
         setVisible(true);
@@ -122,9 +139,22 @@ public class Server extends JFrame implements ActionListener {
         if (out.isEmpty())
             return;
         message.setText("");
-        panelData.setLayout(new BorderLayout());
+
+        JLabel output = new JLabel(out);
+        JPanel p2 = new JPanel();
+        p2.add(output);
 
         JPanel right = new JPanel(new BorderLayout());
+        right.add(p2, BorderLayout.AFTER_LINE_ENDS);
+        vertical.add(right);
+        vertical.add(Box.createVerticalStrut(15));
+        panelData.add(vertical, BorderLayout.PAGE_START);
+
+        repaint();
+        revalidate(); // Refresh the UI
+//        invalidate();
+//        validate();
+
         System.out.println("actionPerformed method from SERVER : " +  out);
     }
 }
