@@ -209,10 +209,10 @@ public class Server implements ActionListener {
             System.out.println("here2");
             while (true) {
                 Socket s =  skt.accept();
-                System.out.println("here2");
+//                System.out.println("here2");
                 DataInputStream din = new DataInputStream(s.getInputStream());
                 dout = new DataOutputStream(s.getOutputStream());
-                System.out.println("here1");
+//                System.out.println("here1");
                 while (true) {
                     String msg = din.readUTF();
                     JPanel panel = Server.formatLabel(msg);
@@ -222,7 +222,7 @@ public class Server implements ActionListener {
                     vertical.add(left);
                     panelData.add(vertical, BorderLayout.PAGE_START);
                     window.validate();
-                    System.out.println("here");
+//                    System.out.println("here");
                 }
             }
         } catch (Exception e) {
