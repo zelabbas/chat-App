@@ -28,4 +28,4 @@ Chatting App using Java Swing &amp; Sockets for real-time messaging. Supports mu
     ├── [JTextField] (Message Input)
     ├── [JButton] (Send Button)
 
-
+![Chat App Preview](/home/zelabbas/chat-App/src/icons/screenShot.png)
